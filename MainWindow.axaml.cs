@@ -235,6 +235,7 @@ namespace PoliCoLauncherApp
             await NavigateTo(() =>
             {
                 FinalPage.LoadData(data);
+                FinalPage.LoadUser(_currentUser);
                 TrainSelectPage.IsVisible = false;
                 FinalPage.IsVisible = true;
             });

@@ -3,12 +3,17 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using PoliCoLauncherApp.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PoliCoLauncherApp.Views
@@ -20,6 +25,33 @@ namespace PoliCoLauncherApp.Views
         public event Action? LeaveRequested;
 
         private TrainData? _data;
+        private UserSession? _user;
+
+        // ── RailDriver bridge ────────────────────────────────────────────────
+        private CancellationTokenSource? _bridgeCts;
+        private IntPtr _rdHandle = IntPtr.Zero;
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate float GetControllerValueDelegate(int ctrl, int param);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private delegate void SetBoolDelegate([MarshalAs(UnmanagedType.Bool)] bool val);
+
+        private GetControllerValueDelegate? _getCV;
+
+        private const int ID_SPEED = 58;
+        private const int ID_LAT   = 400;
+        private const int ID_LON   = 401;
+
+        private static readonly string[] RailDriverSearchPaths =
+        {
+            @"D:\My Steam\steamapps\common\RailWorks\plugins\RailDriver64.dll",
+            @"D:\Steam\steamapps\common\RailWorks\plugins\RailDriver64.dll",
+            @"E:\My Steam\steamapps\common\RailWorks\plugins\RailDriver64.dll",
+            @"E:\Steam\steamapps\common\RailWorks\plugins\RailDriver64.dll",
+            @"C:\Program Files (x86)\Steam\steamapps\common\RailWorks\plugins\RailDriver64.dll",
+            @"C:\Program Files\Steam\steamapps\common\RailWorks\plugins\RailDriver64.dll",
+        };
 
         public FinalPageView()
         {
@@ -32,6 +64,11 @@ namespace PoliCoLauncherApp.Views
         {
             _data = data;
             GenerateTimetable();
+        }
+
+        public void LoadUser(UserSession? user)
+        {
+            _user = user;
         }
 
         public void UpdateUI(bool isConnected, bool hasData)
@@ -55,19 +92,141 @@ namespace PoliCoLauncherApp.Views
             ConnectButtonText.Text = "Connecting...";
             FinalConnectButton.IsEnabled = false;
             _ = SyncHud();
+
+            TryLoadRailDriver();
+            _bridgeCts = new CancellationTokenSource();
+            _ = RunGameBridge(_bridgeCts.Token);
+
             await Task.Delay(3000);
             FinalConnectButton.IsVisible = false;
             LeaveMultiplayerBtn.IsVisible = true;
             Connected?.Invoke();
         }
 
-        private void OnLeaveClick(object? sender, RoutedEventArgs e)
+        private async void OnLeaveClick(object? sender, RoutedEventArgs e)
         {
+            _bridgeCts?.Cancel();
+            _bridgeCts = null;
+            _ = SendDisconnect();
+
+            if (_rdHandle != IntPtr.Zero)
+            {
+                try { NativeLibrary.Free(_rdHandle); } catch { }
+                _rdHandle = IntPtr.Zero;
+                _getCV = null;
+            }
+
             FinalConnectButton.IsVisible = true;
             FinalConnectButton.IsEnabled = true;
             ConnectButtonText.Text = "Connect to PC|MP";
             LeaveMultiplayerBtn.IsVisible = false;
             LeaveRequested?.Invoke();
+        }
+
+        // ── RailDriver bridge ────────────────────────────────────────────────
+
+        private bool TryLoadRailDriver()
+        {
+            // Try to find Steam install path via registry
+            var candidates = new List<string>(RailDriverSearchPaths);
+            try
+            {
+                using var regKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(
+                    @"SOFTWARE\WOW6432Node\Valve\Steam");
+                if (regKey?.GetValue("InstallPath") is string steamPath)
+                {
+                    candidates.Insert(0, Path.Combine(steamPath, "steamapps", "common",
+                        "RailWorks", "plugins", "RailDriver64.dll"));
+                }
+            }
+            catch { }
+
+            foreach (var path in candidates)
+            {
+                if (!File.Exists(path)) continue;
+                try
+                {
+                    _rdHandle = NativeLibrary.Load(path);
+                    var cvPtr = NativeLibrary.GetExport(_rdHandle, "GetControllerValue");
+                    _getCV = Marshal.GetDelegateForFunctionPointer<GetControllerValueDelegate>(cvPtr);
+
+                    if (NativeLibrary.TryGetExport(_rdHandle, "SetRailSimConnected", out var simPtr))
+                        Marshal.GetDelegateForFunctionPointer<SetBoolDelegate>(simPtr)(true);
+                    if (NativeLibrary.TryGetExport(_rdHandle, "SetRailDriverConnected", out var rdPtr))
+                        Marshal.GetDelegateForFunctionPointer<SetBoolDelegate>(rdPtr)(true);
+
+                    Debug.WriteLine($"RailDriver DLL loaded: {path}");
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"RailDriver load failed ({path}): {ex.Message}");
+                }
+            }
+
+            Debug.WriteLine("RailDriver64.dll not found — GPS coords will be 0");
+            return false;
+        }
+
+        private async Task RunGameBridge(CancellationToken token)
+        {
+            using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(3) };
+
+            while (!token.IsCancellationRequested)
+            {
+                try
+                {
+                    float lat = 0f, lon = 0f, speed = 0f;
+                    if (_getCV != null)
+                    {
+                        lat   = _getCV(ID_LAT,   0);
+                        lon   = _getCV(ID_LON,   0);
+                        speed = _getCV(ID_SPEED, 0);
+                    }
+
+                    var payload = new
+                    {
+                        key          = _user?.Key ?? "",
+                        name         = _user?.Name ?? "",
+                        last_name    = _user?.LastName ?? "",
+                        lat          = (double)lat,
+                        lon          = (double)lon,
+                        speed        = Math.Round((double)speed, 1),
+                        train_type   = _data?.TrainType ?? "",
+                        train_number = _data?.TrainNumber ?? "",
+                        locomotive   = _data?.Locomotive ?? "",
+                        wagon_count  = _data?.WagonCount ?? 0,
+                        route_from   = _data?.StartStation ?? "",
+                        route_to     = _data?.EndStation ?? "",
+                        departure_time    = _data?.DepartureTime ?? "",
+                        intermediate_stops = _data?.IntermediateStopMinutes ?? new Dictionary<string, int>()
+                    };
+
+                    var json = JsonSerializer.Serialize(payload);
+                    await http.PostAsync(
+                        "https://map.poli-co.com/mp/update_player",
+                        new StringContent(json, Encoding.UTF8, "application/json"),
+                        token);
+                }
+                catch (OperationCanceledException) { break; }
+                catch (Exception ex) { Debug.WriteLine($"Bridge error: {ex.Message}"); }
+
+                try { await Task.Delay(2000, token); }
+                catch (OperationCanceledException) { break; }
+            }
+        }
+
+        private async Task SendDisconnect()
+        {
+            try
+            {
+                using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(3) };
+                var json = JsonSerializer.Serialize(new { key = _user?.Key ?? "" });
+                await http.PostAsync(
+                    "https://map.poli-co.com/mp/leave_player",
+                    new StringContent(json, Encoding.UTF8, "application/json"));
+            }
+            catch { }
         }
 
         private void GenerateTimetable()
