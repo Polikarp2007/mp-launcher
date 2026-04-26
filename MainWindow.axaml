@@ -1,0 +1,192 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="clr-namespace:PoliCoLauncherApp.Views"
+        x:Class="PoliCoLauncherApp.MainWindow"
+        Title="Poli&amp;Co Launcher"
+        Width="800" Height="500"
+        WindowStartupLocation="CenterScreen"
+        CanResize="False"
+        Background="#FFFFFF">
+
+    <Window.Styles>
+        <Style Selector="StackPanel#ConnectedIndicator > Ellipse">
+            <Style.Animations>
+                <Animation Duration="0:0:1.5" IterationCount="Infinite">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="Opacity" Value="1"/>
+                    </KeyFrame>
+                    <KeyFrame Cue="50%">
+                        <Setter Property="Opacity" Value="0.3"/>
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="Opacity" Value="1"/>
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+
+        <Style Selector="Image#AppLogo">
+            <Style.Animations>
+                <Animation Duration="0:0:1">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="Opacity" Value="0"/>
+                        <Setter Property="TranslateTransform.Y" Value="-20"/>
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="Opacity" Value="1"/>
+                        <Setter Property="TranslateTransform.Y" Value="0"/>
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+
+        <Style Selector="Image#AppLogoDashboard">
+            <Style.Animations>
+                <Animation Duration="0:0:1">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="Opacity" Value="0"/>
+                        <Setter Property="TranslateTransform.Y" Value="-20"/>
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="Opacity" Value="1"/>
+                        <Setter Property="TranslateTransform.Y" Value="0"/>
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+
+        <Style Selector="Button.DashBtn">
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border CornerRadius="20" ClipToBounds="True">
+                        <ContentPresenter Content="{TemplateBinding Content}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+
+        <Style Selector="TextBlock.DashText">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="Button.DashBtn:pointerover Border">
+            <Setter Property="Background" Value="#CC3458e1"/>
+        </Style>
+
+        <Style Selector="TextBox.NumericInput">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+        </Style>
+    </Window.Styles>
+
+    <Border BorderBrush="#C0C0C0" BorderThickness="1" Background="White">
+    <Grid>
+        <!-- PAGES -->
+        <views:WelcomePageView x:Name="WelcomePage"/>
+        <views:LoginPageView x:Name="LoginPage" IsVisible="False"/>
+        <views:DashboardPageView x:Name="DashboardPage" IsVisible="False"/>
+        <views:RoutePageView x:Name="RoutePage" IsVisible="False"/>
+        <views:TrainSelectPageView x:Name="TrainSelectPage" IsVisible="False"/>
+        <views:FinalPageView x:Name="FinalPage" IsVisible="False"/>
+
+        <!-- GLOBAL LOGO OVERLAY (welcome page, hidden after intro) -->
+        <Image x:Name="AppLogo"
+               Source="/Assets/logo.png"
+               Width="180" Height="47"
+               HorizontalAlignment="Left" VerticalAlignment="Top"
+               Margin="25,23,0,0" ZIndex="1000"
+               PointerPressed="LogoClicked"
+               Cursor="Hand"
+               RenderOptions.BitmapInterpolationMode="HighQuality"/>
+
+        <!-- CONNECTED STATUS DOT -->
+        <StackPanel x:Name="ConnectedIndicator" Orientation="Horizontal"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Margin="210,41,0,0" ZIndex="1001" IsVisible="False" Spacing="5">
+            <Ellipse Width="12" Height="12" Fill="#28A745" VerticalAlignment="Center"/>
+            <TextBlock Text="PC|MP" FontSize="12" FontWeight="Bold" Foreground="#28A745" VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <!-- GLOBAL FOOTER (Left) -->
+        <TextBlock Text="Developed by Poli&amp;Co. All rights reserved © 2026"
+                   FontSize="10" Foreground="#888888"
+                   HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                   Margin="25,0,0,15"/>
+
+        <!-- GLOBAL FOOTER (Right) -->
+        <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                    Margin="0,0,25,15">
+            <TextBlock Text="Made with love" FontSize="10" Foreground="#888888"/>
+            <TextBlock Text=" ❤️" FontSize="10" Foreground="#3458e1" Margin="3,0,0,0"/>
+        </StackPanel>
+
+        <!-- BRAND TRANSITION OVERLAY -->
+        <Grid x:Name="TransitionOverlay" ZIndex="9999" IsVisible="False" Opacity="0" Background="White">
+            <StackPanel x:Name="BrandContainer"
+                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Spacing="0" RenderTransformOrigin="50%,50%">
+                <!-- Grid splits PC · | · MP so the underline aligns exactly under | -->
+                <Grid HorizontalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="14"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Column="0" Grid.Row="0"
+                               Text="PC" FontSize="84" FontWeight="Black" Foreground="#3458e1"/>
+                    <TextBlock Grid.Column="1" Grid.Row="0"
+                               Text="|" FontSize="84" FontWeight="Black" Foreground="#3458e1"/>
+                    <TextBlock Grid.Column="2" Grid.Row="0"
+                               Text="MP" FontSize="84" FontWeight="Black" Foreground="#3458e1"/>
+                    <Border Grid.Column="1" Grid.Row="1"
+                            Height="4" Background="#3458e1"
+                            HorizontalAlignment="Stretch" VerticalAlignment="Bottom"/>
+                </Grid>
+            </StackPanel>
+        </Grid>
+
+        <!-- TOAST NOTIFICATION -->
+        <Border x:Name="ToastNotification"
+                Background="#AA28A745" CornerRadius="0"
+                HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                Margin="0,0,2,40" IsVisible="False"
+                Width="220" Height="40">
+            <Border.RenderTransform>
+                <TranslateTransform X="240"/>
+            </Border.RenderTransform>
+            <Grid>
+                <TextBlock x:Name="ToastText" Text="" Foreground="White" FontSize="12" FontWeight="Bold"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Button x:Name="ToastCloseBtn"
+                        Width="16" Height="16" Background="Transparent" BorderThickness="0"
+                        HorizontalAlignment="Right" VerticalAlignment="Top"
+                        Margin="0,2,2,0" Click="CloseToast">
+                    <Button.Styles>
+                        <Style Selector="Button:pointerover TextBlock">
+                            <Setter Property="Foreground" Value="#FF4444"/>
+                        </Style>
+                    </Button.Styles>
+                    <TextBlock Text="✕" Foreground="#CCCCCC" FontSize="10" FontWeight="Bold"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Button>
+            </Grid>
+        </Border>
+    </Grid>
+    </Border>
+</Window>

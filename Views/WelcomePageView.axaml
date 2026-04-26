@@ -1,0 +1,36 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="PoliCoLauncherApp.Views.WelcomePageView">
+
+    <UserControl.Styles>
+        <Style Selector="TextBlock#WelcomeText">
+            <Setter Property="RenderTransformOrigin" Value="50%,50%"/>
+            <Setter Property="RenderTransform">
+                <ScaleTransform ScaleY="1"/>
+            </Setter>
+        </Style>
+        <Style Selector="TextBlock#TaglineText">
+            <Setter Property="Opacity" Value="0"/>
+            <Setter Property="RenderTransformOrigin" Value="50%,50%"/>
+            <Setter Property="RenderTransform">
+                <ScaleTransform ScaleY="0"/>
+            </Setter>
+        </Style>
+    </UserControl.Styles>
+
+    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="10">
+        <Grid>
+            <TextBlock x:Name="WelcomeText" Text="Welcome"
+                       FontSize="48" FontWeight="Bold" Foreground="#000000"
+                       HorizontalAlignment="Center"/>
+            <TextBlock x:Name="TaglineText"
+                       Text="for You - for Us. For everyone."
+                       FontSize="20" Foreground="#000000"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+        <ProgressBar x:Name="IntroProgress" Height="3" Width="300"
+                     Margin="0,30,0,0"
+                     Background="#EEEEEE" Foreground="#3458e1"
+                     IsIndeterminate="True"/>
+    </StackPanel>
+</UserControl>

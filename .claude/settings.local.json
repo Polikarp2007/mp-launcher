@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet build *)",
+      "Bash(dotnet run *)",
+      "Bash(kill %1)",
+      "Bash(identify /Users/polikarp/Desktop/PoliCoLauncher/PoliCoLauncherApp/Assets/app_logo.png)",
+      "Bash(sips -g all /Users/polikarp/Desktop/PoliCoLauncher/PoliCoLauncherApp/Assets/app_logo.png)",
+      "Bash(python3 *)"
+    ]
+  }
+}

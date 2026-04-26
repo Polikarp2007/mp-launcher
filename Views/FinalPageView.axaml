@@ -1,0 +1,118 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="PoliCoLauncherApp.Views.FinalPageView">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- LOGO -->
+        <Image Source="/Assets/logo.png"
+               RenderOptions.BitmapInterpolationMode="HighQuality"
+               Width="180" Height="47"
+               HorizontalAlignment="Left" VerticalAlignment="Top"
+               Margin="25,23,0,0" ZIndex="1000"
+               PointerPressed="OnLogoPressed"
+               Cursor="Hand"
+               Grid.Column="0"/>
+
+        <!-- PAGE TITLE -->
+        <TextBlock Text="Final Page"
+                   FontSize="24" FontWeight="Bold" Foreground="#000000"
+                   HorizontalAlignment="Right" VerticalAlignment="Top"
+                   Margin="0,25,45,0" Grid.Column="1"/>
+
+        <!-- SEPARATOR LINE -->
+        <Border Height="1" Background="#000000" VerticalAlignment="Top"
+                Margin="25,82,25,0" Grid.ColumnSpan="2"/>
+
+        <!-- CONTENT -->
+        <ScrollViewer Grid.ColumnSpan="2" Margin="25,90,25,60" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <StackPanel Spacing="15" Margin="0,0,25,0">
+
+                <TextBlock Text="To finally connect to multiplayer, please follow these steps:"
+                           FontSize="20" FontWeight="Bold" Foreground="#000000" Margin="0,0,0,20"/>
+
+                <!-- TIMETABLE SHEET -->
+                <Border Background="#FFFFFF" BorderBrush="#CCCCCC" BorderThickness="1" CornerRadius="4"
+                        Padding="30,25" Margin="0,0,0,25" HorizontalAlignment="Stretch">
+                    <StackPanel Spacing="0">
+                        <TextBlock Text="Poli&amp;Co - PC|MP Timetable" FontSize="18" FontWeight="Bold"
+                                   Foreground="#000000" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+                        <Border Height="2" Background="#3458e1" Margin="0,0,0,15"/>
+                        <TextBlock x:Name="TimetableDate" Text="" FontSize="12" FontWeight="Bold"
+                                   Foreground="#000000" HorizontalAlignment="Left" Margin="0,0,0,5"/>
+                        <StackPanel Spacing="3" Margin="0,0,0,15">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="Train:" FontWeight="Bold" FontSize="12" Foreground="#000000" Width="100"/>
+                                <TextBlock x:Name="TT_TrainInfo" Text="" FontSize="12" Foreground="#000000"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="Locomotive:" FontWeight="Bold" FontSize="12" Foreground="#000000" Width="100"/>
+                                <TextBlock x:Name="TT_Locomotive" Text="" FontSize="11" Foreground="#000000"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="Route:" FontWeight="Bold" FontSize="12" Foreground="#000000" Width="100"/>
+                                <TextBlock x:Name="TT_Route" Text="" FontSize="12" Foreground="#000000"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="Wagons:" FontWeight="Bold" FontSize="12" Foreground="#000000" Width="100"/>
+                                <TextBlock x:Name="TT_Wagons" Text="" FontSize="11" Foreground="#000000"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <Border Height="2" Background="#000000" Margin="0,0,0,0"/>
+                        <StackPanel x:Name="TimetableTable" Spacing="0"/>
+                        <Border Height="2" Background="#000000" Margin="0,0,0,15"/>
+                        <TextBlock Text="Approved by Poli&amp;Co" FontWeight="Bold" FontSize="12"
+                                   Foreground="#3458e1" HorizontalAlignment="Right"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- INSTRUCTIONS -->
+                <StackPanel Spacing="10" Margin="0,0,0,25">
+                    <TextBlock FontSize="15" Foreground="#000000" TextWrapping="Wrap">
+                        <Run FontWeight="Bold" Text="1.  "/>
+                        <Run Text="Launch Train Simulator Classic."/>
+                    </TextBlock>
+                    <TextBlock FontSize="15" Foreground="#000000" TextWrapping="Wrap">
+                        <Run FontWeight="Bold" Text="2.  "/>
+                        <Run Text="Create a Free Roam scenario with the locomotive and wagons you selected when connecting to multiplayer. Place them at the station you selected for departure."/>
+                    </TextBlock>
+                    <TextBlock FontSize="15" Foreground="#000000" TextWrapping="Wrap">
+                        <Run FontWeight="Bold" Text="3.  "/>
+                        <Run Text="Load the scenario and get into the locomotive."/>
+                    </TextBlock>
+                    <TextBlock FontSize="15" Foreground="#000000" TextWrapping="Wrap">
+                        <Run FontWeight="Bold" Text="4.  "/>
+                        <Run Text="Once loaded, click the button below: "/>
+                        <Run FontWeight="Bold" Foreground="#3458e1" Text="Connect to PC|MP"/>
+                    </TextBlock>
+                    <TextBlock FontSize="15" Foreground="#000000" TextWrapping="Wrap">
+                        <Run FontWeight="Bold" Text="5.  "/>
+                        <Run Text="Then go back to the game and follow the dispatcher's instructions, schedule, and vectors."/>
+                    </TextBlock>
+                </StackPanel>
+
+                <Border Height="1" Background="#E0E0E0" Margin="0,0,0,20"/>
+
+                <!-- CONNECT / LEAVE BUTTON -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <Button x:Name="FinalConnectButton" Height="45" Width="240" Padding="20,0"
+                            Background="#3458e1" BorderThickness="0" CornerRadius="8"
+                            HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                            Click="OnConnectClick">
+                        <TextBlock x:Name="ConnectButtonText" Text="Connect to PC|MP"
+                                   Foreground="White" FontSize="14" FontWeight="Bold"/>
+                    </Button>
+                    <Button x:Name="LeaveMultiplayerBtn" Height="45" Width="240" Padding="20,0"
+                            Background="#DC3545" BorderThickness="0" CornerRadius="8"
+                            HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                            Click="OnLeaveClick" IsVisible="False">
+                        <TextBlock Text="Leave from PC|MP" Foreground="White" FontSize="14" FontWeight="Bold"/>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

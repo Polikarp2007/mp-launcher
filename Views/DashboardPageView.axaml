@@ -1,0 +1,104 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="PoliCoLauncherApp.Views.DashboardPageView">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- LEFT PANEL -->
+        <StackPanel Grid.Column="0" Margin="25,90,15,0">
+            <TextBlock Text="Which one???"
+                       FontSize="18" FontWeight="Bold" Foreground="#000000"
+                       Margin="10,12,0,12"/>
+            <ScrollViewer VerticalScrollBarVisibility="Hidden" Height="360">
+                <StackPanel Spacing="1" VerticalAlignment="Top">
+                    <Button Classes="DashBtn" Height="70" Click="OnMapLinkClick">
+                        <Panel>
+                            <Image Source="/Assets/PMG1.png" Stretch="UniformToFill"/>
+                            <Border Background="#AA000000" CornerRadius="15"/>
+                            <TextBlock Text="PC | MP Map" Classes="DashText" FontSize="13"/>
+                        </Panel>
+                    </Button>
+                    <Button Classes="DashBtn" Height="70" Click="OnSiteLinkClick">
+                        <Panel>
+                            <Image Source="/Assets/PMG2.png" Stretch="UniformToFill"/>
+                            <Border Background="#AA000000" CornerRadius="15"/>
+                            <TextBlock Text="Poli&amp;Co Site" Classes="DashText" FontSize="13"/>
+                        </Panel>
+                    </Button>
+                    <Button Classes="DashBtn" Height="70" Click="OnConnectClick">
+                        <Panel>
+                            <Image Source="/Assets/PMG3.png" Stretch="UniformToFill"/>
+                            <Border Background="#AA000000" CornerRadius="15"/>
+                            <TextBlock Text="Connect to PC|MP" Classes="DashText" FontSize="13"/>
+                        </Panel>
+                    </Button>
+                    <Button Classes="DashBtn" Height="70" Click="OnHistoryClick">
+                        <Panel>
+                            <Image Source="/Assets/PMG4.png" Stretch="UniformToFill"/>
+                            <Border Background="#AA000000" CornerRadius="15"/>
+                            <TextBlock Text="History" Classes="DashText" FontSize="13"/>
+                        </Panel>
+                    </Button>
+                </StackPanel>
+            </ScrollViewer>
+        </StackPanel>
+
+        <!-- RIGHT PANEL -->
+        <Grid Grid.Column="1" Margin="20,100,25,100">
+            <StackPanel VerticalAlignment="Top" Margin="0,35,0,0" Spacing="10">
+                <StackPanel Margin="0,0,0,5">
+                    <TextBlock Text="Latest NEW's:" FontSize="26" FontWeight="Bold" Foreground="#000000"/>
+                    <TextBlock x:Name="VersionDisplay" Text="Checking..." FontSize="13" Foreground="#888888"/>
+                </StackPanel>
+                <Border Background="#F9F9F9"
+                        BorderBrush="#EEEEEE"
+                        BorderThickness="1"
+                        CornerRadius="15"
+                        Height="272"
+                        VerticalAlignment="Top"
+                        ClipToBounds="True"
+                        Padding="0">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Height="272" Padding="15,15,15,15">
+                        <ItemsControl x:Name="NewsContainer"/>
+                    </ScrollViewer>
+                </Border>
+            </StackPanel>
+        </Grid>
+
+        <!-- SEPARATOR LINE -->
+        <Border Height="1" Background="#F0F0F0" VerticalAlignment="Top" Margin="25,82,25,0"/>
+
+        <!-- LOGO -->
+        <Image x:Name="AppLogoDashboard"
+               Source="/Assets/logo.png"
+               Width="180" Height="47"
+               HorizontalAlignment="Left" VerticalAlignment="Top"
+               Margin="25,23,0,0" ZIndex="1000"
+               PointerPressed="OnLogoPressed"
+               Cursor="Hand"
+               Grid.ColumnSpan="2"
+               RenderOptions.BitmapInterpolationMode="HighQuality"/>
+
+        <!-- USER INFO — same vertical level as logo, right side -->
+        <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Margin="0,24,25,0" Spacing="12"
+                    Grid.ColumnSpan="2" ZIndex="1000">
+            <StackPanel VerticalAlignment="Center" Spacing="1">
+                <TextBlock Text="Welcome,"
+                           FontSize="11" Foreground="#888888"
+                           HorizontalAlignment="Right"/>
+                <TextBlock x:Name="UserNameText" Text=""
+                           FontSize="14" FontWeight="Bold" Foreground="#000000"
+                           HorizontalAlignment="Right"/>
+            </StackPanel>
+            <Border Width="42" Height="42" CornerRadius="4" ClipToBounds="True"
+                    Background="#E8EEFF" VerticalAlignment="Center">
+                <Image x:Name="SteamAvatarImage" Stretch="UniformToFill"/>
+            </Border>
+        </StackPanel>
+    </Grid>
+</UserControl>

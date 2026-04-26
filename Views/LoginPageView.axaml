@@ -1,0 +1,131 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="PoliCoLauncherApp.Views.LoginPageView"
+             Background="White">
+
+    <UserControl.Styles>
+        <Style Selector="TextBox.KeyInput">
+            <Setter Property="Background" Value="#F6F7FB"/>
+            <Setter Property="BorderBrush" Value="#B8BED8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="0"/>
+            <Setter Property="Foreground" Value="#0A1040"/>
+            <Setter Property="CaretBrush" Value="#3458e1"/>
+            <Setter Property="Width" Value="56"/>
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontFamily" Value="Consolas,Courier New,monospace"/>
+            <Setter Property="MaxLength" Value="4"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+        <Style Selector="TextBox.KeyInput:focus /template/ Border">
+            <Setter Property="BorderBrush" Value="#3458e1"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="Background" Value="#EDF0FF"/>
+        </Style>
+        <Style Selector="Button.LoginBtn">
+            <Setter Property="Background" Value="#3458e1"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Width" Value="270"/>
+        </Style>
+        <Style Selector="Button.LoginBtn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#2748c9"/>
+        </Style>
+        <Style Selector="Button.LoginBtn:disabled /template/ ContentPresenter">
+            <Setter Property="Background" Value="#8099CC"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Grid>
+        <!-- LOGO -->
+        <Image Source="/Assets/logo.png"
+               RenderOptions.BitmapInterpolationMode="HighQuality"
+               Width="180" Height="47"
+               HorizontalAlignment="Left" VerticalAlignment="Top"
+               Margin="25,23,0,0"
+               PointerPressed="OnLogoPressed"
+               Cursor="Hand"/>
+
+        <!-- PAGE TITLE -->
+        <TextBlock Text="Login Page"
+                   FontSize="24" FontWeight="Bold" Foreground="#000000"
+                   HorizontalAlignment="Right" VerticalAlignment="Top"
+                   Margin="0,25,45,0"/>
+
+        <!-- SEPARATOR -->
+        <Border Height="1" Background="#000000" VerticalAlignment="Top"
+                Margin="25,82,25,0"/>
+
+        <!-- ── LOGIN FORM ─────────────────────────────────────────── -->
+        <StackPanel x:Name="LoginPanel"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Spacing="0" MaxWidth="460">
+
+            <!-- Heading -->
+            <TextBlock Text="Log-In to PC|MP"
+                       FontSize="30" FontWeight="Black" Foreground="#3458e1"
+                       HorizontalAlignment="Center" Margin="0,0,0,10"/>
+
+            <!-- Sub-heading -->
+            <TextBlock Text="Login to PC|MP via UIK (Unique Identification Key)"
+                       FontSize="13" Foreground="#555555"
+                       HorizontalAlignment="Center" TextAlignment="Center"
+                       TextWrapping="Wrap" Margin="0,0,0,28"/>
+
+            <!-- Key input row -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="4">
+                <TextBox x:Name="Key1" Classes="KeyInput" TextChanged="OnKeyTextChanged"/>
+                <TextBlock Text="–" FontSize="20" FontWeight="Bold"
+                           VerticalAlignment="Center" Foreground="#8894C4" Margin="1,0"/>
+                <TextBox x:Name="Key2" Classes="KeyInput" TextChanged="OnKeyTextChanged"/>
+                <TextBlock Text="–" FontSize="20" FontWeight="Bold"
+                           VerticalAlignment="Center" Foreground="#8894C4" Margin="1,0"/>
+                <TextBox x:Name="Key3" Classes="KeyInput" TextChanged="OnKeyTextChanged"/>
+                <TextBlock Text="–" FontSize="20" FontWeight="Bold"
+                           VerticalAlignment="Center" Foreground="#8894C4" Margin="1,0"/>
+                <TextBox x:Name="Key4" Classes="KeyInput" TextChanged="OnKeyTextChanged"/>
+            </StackPanel>
+
+            <!-- Error message -->
+            <TextBlock x:Name="ErrorText" Text=""
+                       FontSize="12" Foreground="#DC3545"
+                       HorizontalAlignment="Center" TextAlignment="Center"
+                       TextWrapping="Wrap" Margin="0,12,0,0"
+                       IsVisible="False"/>
+
+            <!-- Login button -->
+            <Button x:Name="LoginButton" Classes="LoginBtn"
+                    Margin="0,20,0,0" HorizontalAlignment="Center"
+                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                    Click="OnLoginClick">
+                <TextBlock x:Name="LoginButtonText" Text="Log-in to PC|MP"
+                           Foreground="White" FontSize="15" FontWeight="Bold"/>
+            </Button>
+
+        </StackPanel>
+
+        <!-- ── LOADING PANEL ──────────────────────────────────────── -->
+        <StackPanel x:Name="LoadingPanel"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Spacing="18" IsVisible="False">
+
+            <!-- Spinner (indeterminate progress bar styled as line) -->
+            <ProgressBar IsIndeterminate="True"
+                         Width="220" Height="5"
+                         Foreground="#3458e1"
+                         Background="#E0EAFF"
+                         CornerRadius="3"/>
+
+            <TextBlock Text="Authenticating..."
+                       FontSize="20" FontWeight="Bold" Foreground="#3458e1"
+                       HorizontalAlignment="Center"/>
+        </StackPanel>
+
+    </Grid>
+</UserControl>
