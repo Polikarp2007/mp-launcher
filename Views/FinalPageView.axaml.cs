@@ -132,21 +132,39 @@ namespace PoliCoLauncherApp.Views
         {
             try
             {
-                string hudPath = Path.Combine(
-                    AppDomain.CurrentDomain.BaseDirectory,
-                    "bin", "pcimp_hud.exe");
+                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                string exePath = Path.Combine(baseDir, "bin", "pcimp_hud.exe");
+                string pyPath  = Path.Combine(baseDir, "bin", "overlay.py");
 
-                if (!File.Exists(hudPath))
+                ProcessStartInfo psi;
+
+                if (File.Exists(exePath))
                 {
-                    Debug.WriteLine("HUD exe not found: " + hudPath);
+                    psi = new ProcessStartInfo { FileName = exePath, UseShellExecute = false };
+                }
+                else if (File.Exists(pyPath))
+                {
+                    string? python = FindPython();
+                    if (python == null)
+                    {
+                        Debug.WriteLine("HUD: Python not found");
+                        return;
+                    }
+                    psi = new ProcessStartInfo
+                    {
+                        FileName        = python,
+                        Arguments       = $"\"{pyPath}\"",
+                        UseShellExecute = false,
+                        WorkingDirectory = Path.Combine(baseDir, "bin"),
+                    };
+                }
+                else
+                {
+                    Debug.WriteLine("HUD: neither pcimp_hud.exe nor overlay.py found in bin/");
                     return;
                 }
 
-                _hudProcess = Process.Start(new ProcessStartInfo
-                {
-                    FileName        = hudPath,
-                    UseShellExecute = false,
-                });
+                _hudProcess = Process.Start(psi);
                 Debug.WriteLine("HUD launched, PID=" + _hudProcess?.Id);
             }
             catch (Exception ex)
@@ -164,6 +182,40 @@ namespace PoliCoLauncherApp.Views
             }
             catch { }
             finally { _hudProcess = null; }
+        }
+
+        private static string? FindPython()
+        {
+            // pythonw — no console window; python — fallback
+            foreach (string exe in new[] { "pythonw.exe", "python.exe" })
+            {
+                string? inPath = FindInPath(exe);
+                if (inPath != null) return inPath;
+
+                string user = Environment.UserName;
+                foreach (string ver in new[] { "Python313", "Python312", "Python311", "Python310" })
+                {
+                    string[] candidates =
+                    {
+                        $@"C:\{ver}\{exe}",
+                        $@"C:\Users\{user}\AppData\Local\Programs\Python\{ver}\{exe}",
+                    };
+                    foreach (string c in candidates)
+                        if (File.Exists(c)) return c;
+                }
+            }
+            return null;
+        }
+
+        private static string? FindInPath(string name)
+        {
+            string pathEnv = Environment.GetEnvironmentVariable("PATH") ?? "";
+            foreach (string dir in pathEnv.Split(Path.PathSeparator))
+            {
+                string full = Path.Combine(dir.Trim(), name);
+                if (File.Exists(full)) return full;
+            }
+            return null;
         }
 
         // ── RailDriver bridge ────────────────────────────────────────────────
