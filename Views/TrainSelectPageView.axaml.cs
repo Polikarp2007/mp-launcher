@@ -179,14 +179,49 @@ namespace PoliCoLauncherApp.Views
 
         private void OnSaveAndConnectClick(object? sender, RoutedEventArgs e)
         {
+            string trainType  = (TrainTypeCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "";
+            string trainNum   = TrainNumberInput.Text?.Trim() ?? "";
+            string start      = (StartStationCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "";
+            string end        = (EndStationCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "";
+            string hours      = HoursInput.Text?.Trim() ?? "";
+            string minutes    = MinutesInput.Text?.Trim() ?? "";
+            string locomotive = (LocomotiveCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "";
+
+            static bool empty(string s) => string.IsNullOrWhiteSpace(s);
+
+            string? error = null;
+            if (empty(trainType))
+                error = "Please select a Train Type.";
+            else if (empty(trainNum))
+                error = "Please enter the Train Number.";
+            else if (empty(start))
+                error = "Please select a Start Station.";
+            else if (empty(end))
+                error = "Please select an End Station.";
+            else if (start == end)
+                error = "Start and End stations cannot be the same.";
+            else if (empty(hours) || empty(minutes))
+                error = "Please enter the Departure Time (HH:MM).";
+            else if (empty(locomotive))
+                error = "Please select a Locomotive.";
+
+            if (error != null)
+            {
+                ValidationLabel.Text = error;
+                ValidationLabel.IsVisible = true;
+                return;
+            }
+
+            ValidationLabel.IsVisible = false;
+
             var data = new TrainData
             {
-                TrainType = (TrainTypeCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Not selected",
-                TrainNumber = TrainNumberInput.Text ?? "Not entered",
-                StartStation = (StartStationCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Not selected",
-                EndStation = (EndStationCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Not selected",
-                DepartureTime = $"{HoursInput.Text ?? "0"}:{MinutesInput.Text ?? "0"}",
-                Locomotive = (LocomotiveCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Not selected",
+                TrainType    = trainType,
+                TrainNumber  = trainNum,
+                StartStation = start,
+                EndStation   = end,
+                DepartureTime = $"{hours}:{minutes}",
+                Locomotive   = locomotive,
             };
 
             int.TryParse(WagonCountDisplay.Text, out int wagonCount);

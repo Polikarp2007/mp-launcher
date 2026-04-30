@@ -154,6 +154,9 @@
                 </StackPanel>
 
                 <!-- BUTTON -->
+                <TextBlock x:Name="ValidationLabel" Text="" Foreground="#CC0000"
+                           FontSize="13" FontWeight="Bold" IsVisible="False"
+                           TextWrapping="Wrap" Margin="0,0,0,8"/>
                 <Button Height="40" Padding="30,0" Background="#3458e1" BorderThickness="0" CornerRadius="8"
                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                         Margin="0,0,0,10" Click="OnSaveAndConnectClick">

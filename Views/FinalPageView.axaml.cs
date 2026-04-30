@@ -126,21 +126,28 @@ namespace PoliCoLauncherApp.Views
             ConnectButtonText.Text = "Connect to PC|MP";
             LeaveMultiplayerBtn.IsVisible = false;
             LeaveRequested?.Invoke();
+            Environment.Exit(0);
         }
 
         private void LaunchHud()
         {
             try
             {
-                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                string exePath = Path.Combine(baseDir, "bin", "pcimp_hud.exe");
-                string pyPath  = Path.Combine(baseDir, "bin", "overlay.py");
+                string baseDir  = AppDomain.CurrentDomain.BaseDirectory;
+                string exePath  = Path.Combine(baseDir, "Developer", "PoliCo_HUD.exe");
+                string pyPath   = Path.Combine(baseDir, "Developer", "pcImp_v1.py");
+                string assetsDir = Path.Combine(baseDir, "Cache", "RAILWORKS", "PCIMP");
 
                 ProcessStartInfo psi;
 
                 if (File.Exists(exePath))
                 {
-                    psi = new ProcessStartInfo { FileName = exePath, UseShellExecute = false };
+                    psi = new ProcessStartInfo
+                    {
+                        FileName         = exePath,
+                        UseShellExecute  = false,
+                        WorkingDirectory = assetsDir,
+                    };
                 }
                 else if (File.Exists(pyPath))
                 {
@@ -152,15 +159,15 @@ namespace PoliCoLauncherApp.Views
                     }
                     psi = new ProcessStartInfo
                     {
-                        FileName        = python,
-                        Arguments       = $"\"{pyPath}\"",
-                        UseShellExecute = false,
-                        WorkingDirectory = Path.Combine(baseDir, "bin"),
+                        FileName         = python,
+                        Arguments        = $"\"{pyPath}\"",
+                        UseShellExecute  = false,
+                        WorkingDirectory = assetsDir,
                     };
                 }
                 else
                 {
-                    Debug.WriteLine("HUD: neither pcimp_hud.exe nor overlay.py found in bin/");
+                    Debug.WriteLine("HUD: neither PoliCo_HUD.exe nor pcImp_v1.py found in Developer/");
                     return;
                 }
 
