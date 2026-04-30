@@ -27,6 +27,9 @@ namespace PoliCoLauncherApp.Views
         private TrainData? _data;
         private UserSession? _user;
 
+        // ── HUD overlay process ──────────────────────────────────────────────
+        private Process? _hudProcess;
+
         // ── RailDriver bridge ────────────────────────────────────────────────
         private CancellationTokenSource? _bridgeCts;
         private IntPtr _rdHandle = IntPtr.Zero;
@@ -91,7 +94,7 @@ namespace PoliCoLauncherApp.Views
         {
             ConnectButtonText.Text = "Connecting...";
             FinalConnectButton.IsEnabled = false;
-            _ = SyncHud();
+            _ = SyncHud(0, 0, 0);
 
             TryLoadRailDriver();
             _bridgeCts = new CancellationTokenSource();
@@ -101,12 +104,14 @@ namespace PoliCoLauncherApp.Views
             FinalConnectButton.IsVisible = false;
             LeaveMultiplayerBtn.IsVisible = true;
             Connected?.Invoke();
+            LaunchHud();
         }
 
         private async void OnLeaveClick(object? sender, RoutedEventArgs e)
         {
             _bridgeCts?.Cancel();
             _bridgeCts = null;
+            KillHud();
             _ = SendDisconnect();
 
             if (_rdHandle != IntPtr.Zero)
@@ -121,6 +126,44 @@ namespace PoliCoLauncherApp.Views
             ConnectButtonText.Text = "Connect to PC|MP";
             LeaveMultiplayerBtn.IsVisible = false;
             LeaveRequested?.Invoke();
+        }
+
+        private void LaunchHud()
+        {
+            try
+            {
+                string hudPath = Path.Combine(
+                    AppDomain.CurrentDomain.BaseDirectory,
+                    "bin", "pcimp_hud.exe");
+
+                if (!File.Exists(hudPath))
+                {
+                    Debug.WriteLine("HUD exe not found: " + hudPath);
+                    return;
+                }
+
+                _hudProcess = Process.Start(new ProcessStartInfo
+                {
+                    FileName        = hudPath,
+                    UseShellExecute = false,
+                });
+                Debug.WriteLine("HUD launched, PID=" + _hudProcess?.Id);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("HUD launch failed: " + ex.Message);
+            }
+        }
+
+        private void KillHud()
+        {
+            try
+            {
+                if (_hudProcess != null && !_hudProcess.HasExited)
+                    _hudProcess.Kill(entireProcessTree: true);
+            }
+            catch { }
+            finally { _hudProcess = null; }
         }
 
         // ── RailDriver bridge ────────────────────────────────────────────────
@@ -207,6 +250,8 @@ namespace PoliCoLauncherApp.Views
                         "https://map.poli-co.com/mp/update_player",
                         new StringContent(json, Encoding.UTF8, "application/json"),
                         token);
+
+                    _ = SyncHud((double)lat, (double)lon, Math.Round((double)speed, 1));
                 }
                 catch (OperationCanceledException) { break; }
                 catch (Exception ex) { Debug.WriteLine($"Bridge error: {ex.Message}"); }
@@ -362,13 +407,13 @@ namespace PoliCoLauncherApp.Views
             grid.Children.Add(tb);
         }
 
-        public async Task SyncHud()
+        public async Task SyncHud(double lat, double lon, double speed)
         {
             if (_data == null) return;
             try
             {
                 string[] timeParts = _data.DepartureTime.Split(':');
-                int hours = timeParts.Length > 0 && int.TryParse(timeParts[0], out int h) ? h : 0;
+                int hours   = timeParts.Length > 0 && int.TryParse(timeParts[0], out int h) ? h : 0;
                 int minutes = timeParts.Length > 1 && int.TryParse(timeParts[1], out int m) ? m : 0;
                 int totalMinutes = hours * 60 + minutes;
 
@@ -393,21 +438,27 @@ namespace PoliCoLauncherApp.Views
 
                 var hudData = new
                 {
-                    train_num = $"{_data.TrainType} {_data.TrainNumber}",
-                    route = $"{_data.StartStation} to {_data.EndStation}",
-                    stations = stationsList,
-                    status = "online"
+                    train_num    = $"{_data.TrainType} {_data.TrainNumber}",
+                    train_type   = _data.TrainType,
+                    train_number = _data.TrainNumber,
+                    route        = $"{_data.StartStation} to {_data.EndStation}",
+                    route_from   = _data.StartStation,
+                    route_to     = _data.EndStation,
+                    stations     = stationsList,
+                    lat,
+                    lon,
+                    speed,
+                    status       = "online"
                 };
 
-                using var client = new HttpClient();
+                using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(3) };
                 var json = JsonSerializer.Serialize(hudData);
                 await client.PostAsync("http://116.203.229.254:3000/update_hud",
-                    new System.Net.Http.StringContent(json, System.Text.Encoding.UTF8, "application/json"));
-                Debug.WriteLine("HUD: Успешно отправлено!");
+                    new StringContent(json, Encoding.UTF8, "application/json"));
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("HUD Error: " + ex.Message);
+                Debug.WriteLine("HUD sync error: " + ex.Message);
             }
         }
 
