@@ -4,6 +4,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using PoliCoLauncherApp.Models;
+using PoliCoLauncherApp.Services;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -29,6 +30,9 @@ namespace PoliCoLauncherApp.Views
 
         // ── HUD overlay process ──────────────────────────────────────────────
         private Process? _hudProcess;
+
+        // ── Local history tracking ───────────────────────────────────────────
+        private int _historyIndex = -1;
 
         // ── RailDriver bridge ────────────────────────────────────────────────
         private CancellationTokenSource? _bridgeCts;
@@ -100,6 +104,12 @@ namespace PoliCoLauncherApp.Views
             _bridgeCts = new CancellationTokenSource();
             _ = RunGameBridge(_bridgeCts.Token);
 
+            if (_data != null)
+                _historyIndex = HistoryService.AddEntry(
+                    _data.StartStation, _data.EndStation,
+                    _data.TrainType, _data.TrainNumber,
+                    _data.Locomotive, _data.WagonCount);
+
             await Task.Delay(3000);
             FinalConnectButton.IsVisible = false;
             LeaveMultiplayerBtn.IsVisible = true;
@@ -113,6 +123,8 @@ namespace PoliCoLauncherApp.Views
             _bridgeCts = null;
             KillHud();
             _ = SendDisconnect();
+            HistoryService.CloseEntry(_historyIndex);
+            _historyIndex = -1;
 
             if (_rdHandle != IntPtr.Zero)
             {
@@ -126,17 +138,27 @@ namespace PoliCoLauncherApp.Views
             ConnectButtonText.Text = "Connect to PC|MP";
             LeaveMultiplayerBtn.IsVisible = false;
             LeaveRequested?.Invoke();
-            Environment.Exit(0);
         }
 
         private void LaunchHud()
         {
             try
             {
-                string baseDir  = AppDomain.CurrentDomain.BaseDirectory;
-                string exePath  = Path.Combine(baseDir, "Developer", "PoliCo_HUD.exe");
-                string pyPath   = Path.Combine(baseDir, "Developer", "pcImp_v1.py");
+                string baseDir   = AppDomain.CurrentDomain.BaseDirectory;
+                string exePath   = Path.Combine(baseDir, "Developer", "PoliCo_HUD.exe");
+                string pyPath    = Path.Combine(baseDir, "Developer", "pcImp_v1.py");
                 string assetsDir = Path.Combine(baseDir, "Cache", "RAILWORKS", "PCIMP");
+
+                // Build extra args: pass cached avatar or steam URL so HUD doesn't need its own Steam ID
+                var extraArgs = new System.Text.StringBuilder();
+                string avatarPath = Path.Combine(baseDir, "Assets", "Dashboard", "steam_avatar.jpg");
+                if (File.Exists(avatarPath))
+                    extraArgs.Append($" --avatar-path \"{avatarPath}\"");
+                else if (!string.IsNullOrEmpty(_user?.SteamURL))
+                    extraArgs.Append($" --steam-url \"{_user.SteamURL}\"");
+                string fullName = $"{_user?.Name} {_user?.LastName}".Trim();
+                if (!string.IsNullOrEmpty(fullName))
+                    extraArgs.Append($" --user-name \"{fullName}\"");
 
                 ProcessStartInfo psi;
 
@@ -145,6 +167,7 @@ namespace PoliCoLauncherApp.Views
                     psi = new ProcessStartInfo
                     {
                         FileName         = exePath,
+                        Arguments        = extraArgs.ToString().TrimStart(),
                         UseShellExecute  = false,
                         WorkingDirectory = assetsDir,
                     };
@@ -160,7 +183,7 @@ namespace PoliCoLauncherApp.Views
                     psi = new ProcessStartInfo
                     {
                         FileName         = python,
-                        Arguments        = $"\"{pyPath}\"",
+                        Arguments        = $"\"{pyPath}\"{extraArgs}",
                         UseShellExecute  = false,
                         WorkingDirectory = assetsDir,
                     };
@@ -252,10 +275,8 @@ namespace PoliCoLauncherApp.Views
                     var cvPtr = NativeLibrary.GetExport(_rdHandle, "GetControllerValue");
                     _getCV = Marshal.GetDelegateForFunctionPointer<GetControllerValueDelegate>(cvPtr);
 
-                    if (NativeLibrary.TryGetExport(_rdHandle, "SetRailSimConnected", out var simPtr))
-                        Marshal.GetDelegateForFunctionPointer<SetBoolDelegate>(simPtr)(true);
-                    if (NativeLibrary.TryGetExport(_rdHandle, "SetRailDriverConnected", out var rdPtr))
-                        Marshal.GetDelegateForFunctionPointer<SetBoolDelegate>(rdPtr)(true);
+                    // Do NOT call SetRailSimConnected / SetRailDriverConnected — they write to
+                    // shared RailDriver memory that the running game already owns, which causes crashes.
 
                     Debug.WriteLine($"RailDriver DLL loaded: {path}");
                     return true;

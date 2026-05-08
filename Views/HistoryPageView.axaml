@@ -1,0 +1,64 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="PoliCoLauncherApp.Views.HistoryPageView">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- LEFT PANEL -->
+        <StackPanel Grid.Column="0" Margin="25,90,15,0">
+            <TextBlock Text="My Trips"
+                       FontSize="18" FontWeight="Bold" Foreground="#000000"
+                       Margin="10,12,0,12"/>
+            <ScrollViewer VerticalScrollBarVisibility="Hidden" Height="360">
+                <StackPanel Spacing="1" VerticalAlignment="Top">
+                    <Button Classes="DashBtn" Height="70" Click="OnBackClick">
+                        <Panel>
+                            <Border Background="#AA3458e1" CornerRadius="15"/>
+                            <TextBlock Text="← Dashboard" Classes="DashText" FontSize="13"/>
+                        </Panel>
+                    </Button>
+                </StackPanel>
+            </ScrollViewer>
+        </StackPanel>
+
+        <!-- RIGHT PANEL -->
+        <Grid Grid.Column="1" Margin="20,100,25,20">
+            <StackPanel VerticalAlignment="Top" Margin="0,35,0,0" Spacing="10">
+                <TextBlock Text="Connection History" FontSize="26" FontWeight="Bold" Foreground="#000000"/>
+
+                <TextBlock x:Name="HistoryStatusText" Text="Loading..." FontSize="13" Foreground="#888888"/>
+
+                <Border x:Name="HistoryListBorder"
+                        Background="#F9F9F9"
+                        BorderBrush="#EEEEEE"
+                        BorderThickness="1"
+                        CornerRadius="15"
+                        Height="310"
+                        VerticalAlignment="Top"
+                        ClipToBounds="True"
+                        Padding="0"
+                        IsVisible="False">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Height="310" Padding="15,15,15,15">
+                        <StackPanel x:Name="HistoryContainer" Spacing="0"/>
+                    </ScrollViewer>
+                </Border>
+            </StackPanel>
+        </Grid>
+
+        <!-- SEPARATOR LINE -->
+        <Border Height="1" Background="#F0F0F0" VerticalAlignment="Top" Margin="25,82,25,0"/>
+
+        <!-- LOGO -->
+        <Image Source="/Assets/logo.png"
+               RenderOptions.BitmapInterpolationMode="HighQuality"
+               Width="180" Height="47"
+               HorizontalAlignment="Left" VerticalAlignment="Top"
+               Margin="25,23,0,0" ZIndex="1000"
+               PointerPressed="OnLogoPressed"
+               Cursor="Hand"
+               Grid.ColumnSpan="2"/>
+    </Grid>
+</UserControl>

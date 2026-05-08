@@ -99,6 +99,7 @@
         <views:RoutePageView x:Name="RoutePage" IsVisible="False"/>
         <views:TrainSelectPageView x:Name="TrainSelectPage" IsVisible="False"/>
         <views:FinalPageView x:Name="FinalPage" IsVisible="False"/>
+        <views:HistoryPageView x:Name="HistoryPage" IsVisible="False"/>
 
         <!-- GLOBAL LOGO OVERLAY (welcome page, hidden after intro) -->
         <Image x:Name="AppLogo"

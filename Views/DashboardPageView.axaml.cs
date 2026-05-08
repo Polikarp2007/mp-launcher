@@ -22,6 +22,7 @@ namespace PoliCoLauncherApp.Views
     {
         public event Action? LogoPressed;
         public event Action? NavigateToConnect;
+        public event Action? NavigateToHistory;
 
         public DashboardPageView()
         {
@@ -83,7 +84,7 @@ namespace PoliCoLauncherApp.Views
         }
         private void OnMapLinkClick(object? sender, RoutedEventArgs e) => OpenUrl("https://map.poli-co.com");
         private void OnSiteLinkClick(object? sender, RoutedEventArgs e) => OpenUrl("https://poli-co.com");
-        private void OnHistoryClick(object? sender, RoutedEventArgs e) { }
+        private void OnHistoryClick(object? sender, RoutedEventArgs e) => NavigateToHistory?.Invoke();
 
         public async Task LoadNews()
         {

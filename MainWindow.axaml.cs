@@ -102,6 +102,7 @@ namespace PoliCoLauncherApp
 
             DashboardPage.LogoPressed += GoToDashboard;
             DashboardPage.NavigateToConnect += OnNavigateToConnect;
+            DashboardPage.NavigateToHistory += OnNavigateToHistory;
 
             RoutePage.LogoPressed += GoToDashboard;
             RoutePage.NavigateToDashboard += GoToDashboard;
@@ -113,6 +114,9 @@ namespace PoliCoLauncherApp
             FinalPage.LogoPressed += GoToDashboard;
             FinalPage.Connected += OnConnected;
             FinalPage.LeaveRequested += OnLeaveRequested;
+
+            HistoryPage.LogoPressed += GoToDashboard;
+            HistoryPage.NavigateToDashboard += GoToDashboard;
         }
 
         // --- BRAND TRANSITION (~3 seconds total) ---
@@ -172,6 +176,7 @@ namespace PoliCoLauncherApp
                 RoutePage.IsVisible = false;
                 TrainSelectPage.IsVisible = false;
                 FinalPage.IsVisible = false;
+                HistoryPage.IsVisible = false;
             });
         }
 
@@ -186,6 +191,7 @@ namespace PoliCoLauncherApp
                 RoutePage.IsVisible = false;
                 TrainSelectPage.IsVisible = false;
                 FinalPage.IsVisible = false;
+                HistoryPage.IsVisible = false;
             });
         }
 
@@ -194,6 +200,7 @@ namespace PoliCoLauncherApp
             await NavigateTo(() =>
             {
                 DashboardPage.IsVisible = false;
+                HistoryPage.IsVisible = false;
                 if (_isConnected || _hasConnectionData)
                 {
                     FinalPage.IsVisible = true;
@@ -204,6 +211,16 @@ namespace PoliCoLauncherApp
                     RoutePage.IsVisible = true;
                 }
             });
+        }
+
+        private async void OnNavigateToHistory()
+        {
+            await NavigateTo(() =>
+            {
+                DashboardPage.IsVisible = false;
+                HistoryPage.IsVisible = true;
+            });
+            await HistoryPage.LoadHistory(_currentUser?.Key ?? "");
         }
 
         private async void GoToTrainSelect()
@@ -254,6 +271,7 @@ namespace PoliCoLauncherApp
             _isConnected = false;
             _hasConnectionData = false;
             ConnectedIndicator.IsVisible = false;
+            GoToDashboard();
         }
 
         // --- GLOBAL LOGO CLICK ---
