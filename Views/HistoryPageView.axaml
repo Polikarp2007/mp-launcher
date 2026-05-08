@@ -12,20 +12,23 @@
             <TextBlock Text="My Trips"
                        FontSize="18" FontWeight="Bold" Foreground="#000000"
                        Margin="10,12,0,12"/>
-            <ScrollViewer VerticalScrollBarVisibility="Hidden" Height="360">
-                <StackPanel Spacing="1" VerticalAlignment="Top">
-                    <Button Classes="DashBtn" Height="70" Click="OnBackClick">
-                        <Panel>
-                            <Border Background="#AA3458e1" CornerRadius="15"/>
-                            <TextBlock Text="← Dashboard" Classes="DashText" FontSize="13"/>
-                        </Panel>
-                    </Button>
-                </StackPanel>
-            </ScrollViewer>
+            <Button Height="44" Click="OnBackClick"
+                    Background="#3458e1" BorderThickness="0" CornerRadius="6"
+                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                    Margin="2,0,2,0">
+                <Button.Styles>
+                    <Style Selector="Button:pointerover /template/ ContentPresenter">
+                        <Setter Property="Background" Value="#2547c7"/>
+                    </Style>
+                </Button.Styles>
+                <TextBlock Text="← Dashboard"
+                           Foreground="White" FontSize="13" FontWeight="Bold"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Button>
         </StackPanel>
 
         <!-- RIGHT PANEL -->
-        <Grid Grid.Column="1" Margin="20,100,25,20">
+        <Grid Grid.Column="1" Margin="20,100,25,45">
             <StackPanel VerticalAlignment="Top" Margin="0,35,0,0" Spacing="10">
                 <TextBlock Text="Connection History" FontSize="26" FontWeight="Bold" Foreground="#000000"/>
 
@@ -36,12 +39,12 @@
                         BorderBrush="#EEEEEE"
                         BorderThickness="1"
                         CornerRadius="15"
-                        Height="310"
+                        Height="245"
                         VerticalAlignment="Top"
                         ClipToBounds="True"
                         Padding="0"
                         IsVisible="False">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Height="310" Padding="15,15,15,15">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Height="245" Padding="15,15,15,15">
                         <StackPanel x:Name="HistoryContainer" Spacing="0"/>
                     </ScrollViewer>
                 </Border>

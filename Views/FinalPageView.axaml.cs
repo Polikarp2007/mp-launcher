@@ -275,8 +275,10 @@ namespace PoliCoLauncherApp.Views
                     var cvPtr = NativeLibrary.GetExport(_rdHandle, "GetControllerValue");
                     _getCV = Marshal.GetDelegateForFunctionPointer<GetControllerValueDelegate>(cvPtr);
 
-                    // Do NOT call SetRailSimConnected / SetRailDriverConnected — they write to
-                    // shared RailDriver memory that the running game already owns, which causes crashes.
+                    if (NativeLibrary.TryGetExport(_rdHandle, "SetRailSimConnected", out var simPtr))
+                        Marshal.GetDelegateForFunctionPointer<SetBoolDelegate>(simPtr)(true);
+                    if (NativeLibrary.TryGetExport(_rdHandle, "SetRailDriverConnected", out var rdPtr))
+                        Marshal.GetDelegateForFunctionPointer<SetBoolDelegate>(rdPtr)(true);
 
                     Debug.WriteLine($"RailDriver DLL loaded: {path}");
                     return true;
