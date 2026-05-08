@@ -201,13 +201,14 @@ namespace PoliCoLauncherApp
             {
                 DashboardPage.IsVisible = false;
                 HistoryPage.IsVisible = false;
-                if (_isConnected || _hasConnectionData)
+                if (_isConnected)
                 {
                     FinalPage.IsVisible = true;
                     FinalPage.UpdateUI(_isConnected, _hasConnectionData);
                 }
                 else
                 {
+                    _hasConnectionData = false;
                     RoutePage.IsVisible = true;
                 }
             });
@@ -263,6 +264,7 @@ namespace PoliCoLauncherApp
         {
             _isConnected = true;
             ConnectedIndicator.IsVisible = true;
+            DashboardPage.SetConnectedState(true);
             ShowToast("Connected to PC|MP!");
         }
 
@@ -271,6 +273,7 @@ namespace PoliCoLauncherApp
             _isConnected = false;
             _hasConnectionData = false;
             ConnectedIndicator.IsVisible = false;
+            DashboardPage.SetConnectedState(false);
             GoToDashboard();
         }
 

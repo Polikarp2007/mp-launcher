@@ -32,7 +32,7 @@
                         <Panel>
                             <Image Source="/Assets/PMG3.png" Stretch="UniformToFill"/>
                             <Border Background="#AA000000" CornerRadius="15"/>
-                            <TextBlock Text="Connect to PC|MP" Classes="DashText" FontSize="13"/>
+                            <TextBlock x:Name="ConnectBtnText" Text="Connect to PC|MP" Classes="DashText" FontSize="13"/>
                         </Panel>
                     </Button>
                     <Button Classes="DashBtn" Height="70" Click="OnHistoryClick">

@@ -24,6 +24,11 @@ namespace PoliCoLauncherApp.Views
         public event Action? NavigateToConnect;
         public event Action? NavigateToHistory;
 
+        public void SetConnectedState(bool isConnected)
+        {
+            ConnectBtnText.Text = isConnected ? "My PC|MP" : "Connect to PC|MP";
+        }
+
         public DashboardPageView()
         {
             InitializeComponent();

@@ -44,7 +44,7 @@
                         ClipToBounds="True"
                         Padding="0"
                         IsVisible="False">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Height="245" Padding="15,15,15,15">
+                    <ScrollViewer VerticalScrollBarVisibility="Visible" Height="245" Padding="15,15,15,15">
                         <StackPanel x:Name="HistoryContainer" Spacing="0"/>
                     </ScrollViewer>
                 </Border>
