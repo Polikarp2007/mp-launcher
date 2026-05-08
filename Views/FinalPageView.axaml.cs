@@ -145,17 +145,19 @@ namespace PoliCoLauncherApp.Views
             try
             {
                 string baseDir   = AppDomain.CurrentDomain.BaseDirectory;
-                string exePath   = Path.Combine(baseDir, "Developer", "PoliCo_HUD.exe");
+                string exePath   = Path.Combine(baseDir, "Assets", "PCIMP HUD", "PoliCo_HUD.exe");
                 string pyPath    = Path.Combine(baseDir, "Developer", "pcImp_v1.py");
-                string assetsDir = Path.Combine(baseDir, "Cache", "RAILWORKS", "PCIMP");
+                string assetsDir = Path.Combine(baseDir, "Assets", "PCIMP HUD");
 
-                // Build extra args: pass cached avatar or steam URL so HUD doesn't need its own Steam ID
+                Directory.CreateDirectory(assetsDir);
+
+                // Always pass steam-url (for name + avatar) and avatar-path (fast local load)
                 var extraArgs = new System.Text.StringBuilder();
+                if (!string.IsNullOrEmpty(_user?.SteamURL))
+                    extraArgs.Append($" --steam-url \"{_user.SteamURL}\"");
                 string avatarPath = Path.Combine(baseDir, "Assets", "Dashboard", "steam_avatar.jpg");
                 if (File.Exists(avatarPath))
                     extraArgs.Append($" --avatar-path \"{avatarPath}\"");
-                else if (!string.IsNullOrEmpty(_user?.SteamURL))
-                    extraArgs.Append($" --steam-url \"{_user.SteamURL}\"");
                 string fullName = $"{_user?.Name} {_user?.LastName}".Trim();
                 if (!string.IsNullOrEmpty(fullName))
                     extraArgs.Append($" --user-name \"{fullName}\"");
@@ -168,7 +170,7 @@ namespace PoliCoLauncherApp.Views
                     {
                         FileName         = exePath,
                         Arguments        = extraArgs.ToString().TrimStart(),
-                        UseShellExecute  = false,
+                        UseShellExecute  = true,
                         WorkingDirectory = assetsDir,
                     };
                 }
@@ -184,7 +186,7 @@ namespace PoliCoLauncherApp.Views
                     {
                         FileName         = python,
                         Arguments        = $"\"{pyPath}\"{extraArgs}",
-                        UseShellExecute  = false,
+                        UseShellExecute  = true,
                         WorkingDirectory = assetsDir,
                     };
                 }
